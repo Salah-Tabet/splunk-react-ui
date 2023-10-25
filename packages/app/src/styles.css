@@ -1,0 +1,9 @@
+.centered-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 800px; /* Adjust the width as needed */
+    padding: 0 20px; /* Adjust the left and right padding as needed */
+  }
