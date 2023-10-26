@@ -9,20 +9,30 @@ import PrivsTableComponent from './components/PrivsTableComponent';
 import styled from 'styled-components';
 //import Box from "@components/Box.js";
 
-import { StyledContainer, StyledGreeting } from './AppStyles';
+//import { StyledContainer, StyledGreeting } from './AppStyles';
 import { createGlobalStyle } from 'styled-components';
 
 const propTypes = {
     name: PropTypes.string,
 };
-
 const StyledPrivsTableContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto; /* Center the content */
-  max-width: 60%; /* Adjust as needed */
-  padding: 20px; /* Add padding under the input and buttons */
+  margin: 0 auto;
+  max-width: 60%;
+  padding: 20px;
+`;
+
+const StyledTopContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 20px;
+`;
+
+const StyledButton = styled(Button)`
+  max-width: 50px; /* Limit the button width to a maximum of 50px */
 `;
 
 
@@ -69,30 +79,35 @@ const App = ({ name = 'User' }) => {
     
     return (
         <>
-        <SplunkThemeProvider family="enterprise" colorScheme="light" density="comfortable">
-            <GlobalStyles/>
+         <SplunkThemeProvider family="enterprise" colorScheme="light" density="comfortable">
+            <GlobalStyles />
             <TabLayout activePanelId={activePanelId} onChange={handleChange}>
-            <TabLayout.Panel label="Dashboards" panelId="one" style={{margin: 20 }}>
-            <StyledPrivsTableContainer>
-            <div className="centered-container">
-                <RolesInputComponent onSearchChange={handleSearchChange} />
-                <Button label="Cancel" appearance="secondary" onClick={() => handleCancel()} />
-                <Button label="Next>>" appearance="primary" onClick={handleNext} />
-               
-            </div>
-            <div>
-                {showTable && selectedDashboard ? (
+            <TabLayout.Panel label="Dashboards" panelId="one" style={{ margin: 20 }}>
+                <StyledPrivsTableContainer>
+                <StyledTopContainer>
+                    <RolesInputComponent onSearchChange={handleSearchChange} />
+                    <StyledButton
+                    label="Cancel"
+                    appearance="secondary"
+                    onClick={() => handleCancel()}
+                    />
+                    <StyledButton
+                    label="Next>>"
+                    appearance="primary"
+                    onClick={handleNext}
+                    />
+                </StyledTopContainer>
+                
+                    {showTable && selectedDashboard ? (
                     <PrivsTableComponent selectedDashboard={selectedDashboard} />
-                ) : null}
-            </div>
-            </StyledPrivsTableContainer>
+                    ) : null}
+                
+                </StyledPrivsTableContainer>
             </TabLayout.Panel>
             <TabLayout.Panel label="Alerts" panelId="two" style={{ margin: 20 }}>
-            <p>
-                Here goes the Alerts, this blank for now and TBD
-            </p>
+                <p>Here goes the Alerts, this is blank for now and TBD</p>
             </TabLayout.Panel>
-            </TabLayout> 
+            </TabLayout>
         </SplunkThemeProvider>
         </>
         );

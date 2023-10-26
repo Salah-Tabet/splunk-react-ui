@@ -7,26 +7,49 @@ import styled from 'styled-components';
 import ControlGroup from "@splunk/react-ui/ControlGroup";
 import Switch from "@splunk/react-ui/Switch";
 
-
-
-  
   const CheckboxContainer = styled.div`
     display: flex;
     gap: 10px;
     margin-right: 10px; // Remove the extra space to the right of checkboxes
   `;
   
- 
-    
+  const StyledTableContainer = styled.div`
+  width: 100%; /* Make the table occupy 100% of the available width */
+  max-height: 65vh; /* Set a maximum height of the container to the viewport height */
+  overflow-y: auto; /* Add a vertical scrollbar if the content exceeds the container's height */
+`;
+
+const StyledPermissionColumn = styled.div`
+  width: 30% !important;
+  text-align: center;
+  display: flex;
+  align-items: center;
+`;
+
+const StyledRolesColumn = styled.div`
+  width: 70% !important;
+  text-align: left;
+`;
 
 function PrivsTableComponent({ selectedDashboard }) {
     const [checkboxValues, setCheckboxValues] = useState([]); 
     const [tableData, setTableData] = useState([
         { id: '1', dashboard: 'Dashboard 1', role: 'Role A', status: '', read: false, write: true },
         { id: '2', dashboard: 'Dashboard 1', role: 'Role B', status: '', read: false, write: false },
-        { id: '3', dashboard: 'Dashboard 2', role: 'Role C', status: '', read: false, write: true },
-        { id: '4', dashboard: 'Dashboard 2', role: 'Role D', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 3', role: 'Role E', status: '', read: true, write: true },
+        { id: '3', dashboard: 'Dashboard 1', role: 'Role C', status: '', read: false, write: true },
+        { id: '4', dashboard: 'Dashboard 1', role: 'Role D', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
+        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
       ]);
       const filteredData = tableData.filter((row) => row.dashboard === selectedDashboard);
     //   const handleCheckboxChange = (roleId, permissionType) => {
@@ -79,12 +102,15 @@ function PrivsTableComponent({ selectedDashboard }) {
       };
 return (
     <>
-     {/* <StyledPrivsTableContainer> */}
+      <StyledTableContainer>
       <Table dockoffset={0} stripeRows headType="docked" dockscrollBar>
         <Table.Head>
-          <Table.HeadCell width={200}>Roles</Table.HeadCell>
-          <Table.HeadCell width={200}>Permission</Table.HeadCell>
-          {/* <Table.HeadCell width={200}>Status</Table.HeadCell> */}
+          <Table.HeadCell style={{ width: '70%'}}>
+            <StyledRolesColumn>Roles</StyledRolesColumn>
+          </Table.HeadCell>
+          <Table.HeadCell  style={{ width: '30%'}}>
+            <StyledPermissionColumn>Permission</StyledPermissionColumn>
+          </Table.HeadCell>
         </Table.Head>
         <Table.Body>
         {selectedDashboard &&
@@ -114,8 +140,8 @@ return (
               </Table.Row>
             ))}
         </Table.Body>
-      </Table>
-    {/* </StyledPrivsTableContainer> */}
+        </Table>
+    </StyledTableContainer>
     </>
 )
 }
