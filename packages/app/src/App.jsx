@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import Button  from '@splunk/react-ui/Button';
 import Search  from '@splunk/react-ui/Search';
 import { SplunkThemeProvider, variables } from '@splunk/themes';
-import Loading from './components/RolesInputComponent';
+import RolesInputComponent from './components/RolesInputComponent';
 import TabLayout from '@splunk/react-ui/TabLayout';
 import PrivsTableComponent from './components/PrivsTableComponent';
-//import './styles.css';
+import styled from 'styled-components';
 //import Box from "@components/Box.js";
 
 import { StyledContainer, StyledGreeting } from './AppStyles';
@@ -16,11 +16,22 @@ const propTypes = {
     name: PropTypes.string,
 };
 
+const StyledPrivsTableContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto; /* Center the content */
+  max-width: 60%; /* Adjust as needed */
+  padding: 20px; /* Add padding under the input and buttons */
+`;
+
+
 const App = ({ name = 'User' }) => {
     const [counter, setCounter] = useState(0);
     const [activePanelId, setActivePanelId] = useState('one');
     const [searchValue, setSearchValue] = useState('');
     const [selectedDashboard, setSelectedDashboard] = useState('');
+    const [showTable, setShowTable] = useState(false);
     const GlobalStyles = createGlobalStyle`
     body: {
         backgroundColor: $(variable.gray96);
@@ -35,13 +46,21 @@ const App = ({ name = 'User' }) => {
     const handleChange = (e, {activePanelId: panelId}) => {
         setActivePanelId(panelId);
     }
-    const handleSearchChange = (e) => {
-        setSearchValue(e.target.value);
-      };
-    
-      const handleNext = () => {
+    const handleSearchChange = (searchValue) => {
         setSelectedDashboard(searchValue);
       };
+      
+    
+      const handleNext = () => {
+        if (selectedDashboard) {
+            setShowTable(true);
+        // if (searchValue) {
+        //     setSelectedDashboard(searchValue);
+          } else {
+            console.log("Please select a dashboard.");
+          }
+      };
+      
       const handleCancel = () => {
         console.log("Cance button clicked");
       };
@@ -54,16 +73,19 @@ const App = ({ name = 'User' }) => {
             <GlobalStyles/>
             <TabLayout activePanelId={activePanelId} onChange={handleChange}>
             <TabLayout.Panel label="Dashboards" panelId="one" style={{margin: 20 }}>
-            
+            <StyledPrivsTableContainer>
             <div className="centered-container">
-                <Loading onSearchChange={handleSearchChange} />
+                <RolesInputComponent onSearchChange={handleSearchChange} />
                 <Button label="Cancel" appearance="secondary" onClick={() => handleCancel()} />
                 <Button label="Next>>" appearance="primary" onClick={handleNext} />
                
             </div>
             <div>
-                 <PrivsTableComponent  selectedDashboard={selectedDashboard}/>
+                {showTable && selectedDashboard ? (
+                    <PrivsTableComponent selectedDashboard={selectedDashboard} />
+                ) : null}
             </div>
+            </StyledPrivsTableContainer>
             </TabLayout.Panel>
             <TabLayout.Panel label="Alerts" panelId="two" style={{ margin: 20 }}>
             <p>

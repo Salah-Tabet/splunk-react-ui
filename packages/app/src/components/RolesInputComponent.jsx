@@ -37,7 +37,14 @@ function RolesInputComponent({ onSearchChange }) {
 
     const handleChange = (e, { value: searchValue }) => {
         handleFetch(searchValue);
+        onSearchChange(searchValue);
+        if (searchValue === '') {
+            onSearchChange('');
+          }
     };
+
+  
+    
 
     useEffect(() => {
         handleFetch();
