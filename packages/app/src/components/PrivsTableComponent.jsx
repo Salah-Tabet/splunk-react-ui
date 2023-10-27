@@ -9,14 +9,14 @@ import Switch from "@splunk/react-ui/Switch";
 
   const CheckboxContainer = styled.div`
     display: flex;
-    gap: 10px;
-    margin-right: 10px; // Remove the extra space to the right of checkboxes
+    gap: 30px;
+    //margin-right: 10px; // Remove the extra space to the right of checkboxes
   `;
   
   const StyledTableContainer = styled.div`
-  width: 100%; /* Make the table occupy 100% of the available width */
-  max-height: 65vh; /* Set a maximum height of the container to the viewport height */
-  overflow-y: auto; /* Add a vertical scrollbar if the content exceeds the container's height */
+    width: 100%; 
+    max-height: 65vh; 
+    overflow-y: auto; 
 `;
 
 const StyledPermissionColumn = styled.div`
@@ -31,8 +31,11 @@ const StyledRolesColumn = styled.div`
   text-align: left;
 `;
 
-function PrivsTableComponent({ selectedDashboard }) {
+function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, setIsDirty, initialReadChecked, initialWriteChecked}) {
     const [checkboxValues, setCheckboxValues] = useState([]); 
+    // const [initialReadChecked, setInitialReadChecked] = useState({});
+    // const [initialWriteChecked, setInitialWriteChecked] = useState({});
+
     const [tableData, setTableData] = useState([
         { id: '1', dashboard: 'Dashboard 1', role: 'Role A', status: '', read: false, write: true },
         { id: '2', dashboard: 'Dashboard 1', role: 'Role B', status: '', read: false, write: false },
@@ -76,7 +79,7 @@ function PrivsTableComponent({ selectedDashboard }) {
         // Initialize readChecked and writeChecked based on filteredData
         const initialReadChecked = {};
         const initialWriteChecked = {};
-    
+       
         filteredData.forEach((row) => {
           initialReadChecked[row.role] = row.read;
           initialWriteChecked[row.role] = row.write;
@@ -84,6 +87,11 @@ function PrivsTableComponent({ selectedDashboard }) {
     
         setReadChecked(initialReadChecked);
         setWriteChecked(initialWriteChecked);
+
+        const isDirty = Object.keys(readChecked).some((role) => readChecked[role] !== initialReadChecked[role])
+        || Object.keys(writeChecked).some((role) => writeChecked[role] !== initialWriteChecked[role]);
+    
+         setIsDirty(isDirty);
       }, [selectedDashboard]);
     
   
@@ -92,6 +100,12 @@ function PrivsTableComponent({ selectedDashboard }) {
           ...readChecked,
           [role]: !readChecked[role],
         });
+
+        const isDirty =
+        Object.keys(readChecked).some((r) => readChecked[r] !== initialReadChecked[r]) ||
+        Object.keys(writeChecked).some((r) => writeChecked[r] !== initialWriteChecked[r]);
+    
+        setIsDirty(isDirty);
       };
     
       const handleWriteCheckboxClick = (role) => {
@@ -99,7 +113,14 @@ function PrivsTableComponent({ selectedDashboard }) {
           ...writeChecked,
           [role]: !writeChecked[role],
         });
+
+        const isDirty =
+        Object.keys(readChecked).some((r) => readChecked[r] !== initialReadChecked[r]) ||
+        Object.keys(writeChecked).some((r) => writeChecked[r] !== initialWriteChecked[r]);
+
+        setIsDirty(isDirty);
       };
+
 return (
     <>
       <StyledTableContainer>
@@ -109,7 +130,9 @@ return (
             <StyledRolesColumn>Roles</StyledRolesColumn>
           </Table.HeadCell>
           <Table.HeadCell  style={{ width: '30%'}}>
-            <StyledPermissionColumn>Permission</StyledPermissionColumn>
+          
+            <StyledPermissionColumn><span style={{float: 'left', marginRight: '20px'}}>Read</span><span style={{float: 'right'}}>Write</span></StyledPermissionColumn>
+        
           </Table.HeadCell>
         </Table.Head>
         <Table.Body>
@@ -125,7 +148,7 @@ return (
                       selected={readChecked[row.role]}
                       appearance="checkbox"
                     >
-                      Read
+                      
                     </Switch>
                     <Switch
                       value="Write"
@@ -133,7 +156,7 @@ return (
                       selected={writeChecked[row.role]}
                       appearance="checkbox"
                     >
-                      Write
+                      
                     </Switch>
                   </CheckboxContainer>
                 </Table.Cell>
@@ -141,6 +164,7 @@ return (
             ))}
         </Table.Body>
         </Table>
+        
     </StyledTableContainer>
     </>
 )
