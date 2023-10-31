@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Button from '@splunk/react-ui/Button';
 import Search from '@splunk/react-ui/Search';
 import { SplunkThemeProvider, variables } from '@splunk/themes';
-import RolesInputComponent from './components/RolesInputComponent';
+import DashboardsInputComponent from './components/DashboardsInputComponent';
 import TabLayout from '@splunk/react-ui/TabLayout';
 import PrivsTableComponent from './components/PrivsTableComponent';
 import styled from 'styled-components';
@@ -127,7 +127,7 @@ const App = ({ name = 'User' }) => {
             <TabLayout.Panel label="Dashboards" panelId="one" style={{ margin: 20 }}>
                 <StyledPrivsTableContainer>
                 <StyledTopContainer>
-                    <RolesInputComponent onSearchChange={handleSearchChange} />
+                    <DashboardsInputComponent onSearchChange={handleSearchChange} />
                     <StyledButton
                     label="Cancel"
                     appearance="secondary"

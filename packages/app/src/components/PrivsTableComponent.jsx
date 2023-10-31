@@ -35,26 +35,38 @@ function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, set
     const [checkboxValues, setCheckboxValues] = useState([]); 
     // const [initialReadChecked, setInitialReadChecked] = useState({});
     // const [initialWriteChecked, setInitialWriteChecked] = useState({});
+    const [selectAllRead, setSelectAllRead] = useState(false);
+    const [selectAllWrite, setSelectAllWrite] = useState(false);
+
 
     const [tableData, setTableData] = useState([
-        { id: '1', dashboard: 'Dashboard 1', role: 'Role A', status: '', read: false, write: true },
-        { id: '2', dashboard: 'Dashboard 1', role: 'Role B', status: '', read: false, write: false },
-        { id: '3', dashboard: 'Dashboard 1', role: 'Role C', status: '', read: false, write: true },
-        { id: '4', dashboard: 'Dashboard 1', role: 'Role D', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-        { id: '5', dashboard: 'Dashboard 1', role: 'Role E', status: '', read: true, write: true },
-      ]);
-      const filteredData = tableData.filter((row) => row.dashboard === selectedDashboard);
+        {
+            "name": "admin",
+            "id": "https://0.0.0.0:8089/services/authorization/roles/admin",
+            "updated": "1970-01-01T00:00:00+00:00",
+            "links": {
+                "alternate": "/services/authorization/roles/admin",
+                "list": "/services/authorization/roles/admin",
+                "edit": "/services/authorization/roles/admin",
+                "remove": "/services/authorization/roles/admin",
+            },
+            "author": "system",
+            "acl": {
+                "app":"",
+                "can_list": true,
+                "can_write": true,
+                "modifiable": false,
+                "owner": "system",
+            },
+            "perms": {
+                "read":["*"],
+                "write":["*"],
+                },
+            "removable": false,
+            "sharing": "system",
+        }
+        ]);
+      const filteredData = tableData; //.filter((row) => row.name === selectedDashboard);
     //   const handleCheckboxChange = (roleId, permissionType) => {
     //     const updatedTableData = tableData.map((row) => {
     //       if (row.id === roleId) {
@@ -80,21 +92,46 @@ function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, set
         const initialReadChecked = {};
         const initialWriteChecked = {};
        
+       // Loop through the data from DashboardsInputComponent
         filteredData.forEach((row) => {
-          initialReadChecked[row.role] = row.read;
-          initialWriteChecked[row.role] = row.write;
+            const roleName = row.name; // Assuming the role name is in the "name" property
+            initialReadChecked[roleName] = row.perms.read.includes(roleName);
+            initialWriteChecked[roleName] = row.perms.write.includes(roleName);
         });
-    
+
         setReadChecked(initialReadChecked);
         setWriteChecked(initialWriteChecked);
 
+        // Check if there are any initial changes
         const isDirty = Object.keys(readChecked).some((role) => readChecked[role] !== initialReadChecked[role])
-        || Object.keys(writeChecked).some((role) => writeChecked[role] !== initialWriteChecked[role]);
-    
-         setIsDirty(isDirty);
+            || Object.keys(writeChecked).some((role) => writeChecked[role] !== initialWriteChecked[role]);
+
+        setIsDirty(isDirty);
       }, [selectedDashboard]);
     
-  
+      const handleSelectAllRead = () => {
+        const updatedReadChecked = {};
+        Object.keys(readChecked).forEach((role) => {
+          updatedReadChecked[role] = !selectAllRead;
+        });
+      
+        setReadChecked(updatedReadChecked);
+        setSelectAllRead(!selectAllRead);
+        setIsDirty(true); // You may need to set this state as changes occur
+      };
+      
+      const handleSelectAllWrite = () => {
+        const updatedWriteChecked = {};
+        Object.keys(writeChecked).forEach((role) => {
+          updatedWriteChecked[role] = !selectAllWrite;
+        });
+      
+        setWriteChecked(updatedWriteChecked);
+        setSelectAllWrite(!selectAllWrite);
+        setIsDirty(true); // You may need to set this state as changes occur
+      };
+
+      
     const handleReadCheckboxClick = (role) => {
         setReadChecked({
           ...readChecked,
@@ -125,27 +162,46 @@ return (
     <>
       <StyledTableContainer>
       <Table dockoffset={0} stripeRows headType="docked" dockscrollBar>
-        <Table.Head>
-          <Table.HeadCell style={{ width: '70%'}}>
+      <Table.Head>
+        <Table.HeadCell style={{ width: '70%' }}>
             <StyledRolesColumn>Roles</StyledRolesColumn>
-          </Table.HeadCell>
-          <Table.HeadCell  style={{ width: '30%'}}>
-          
-            <StyledPermissionColumn><span style={{float: 'left', marginRight: '20px'}}>Read</span><span style={{float: 'right'}}>Write</span></StyledPermissionColumn>
-        
-          </Table.HeadCell>
+        </Table.HeadCell>
+        <Table.HeadCell style={{ width: '30%' }}>
+            <StyledPermissionColumn>
+            {/* <span style={{ float: 'left', marginRight: '20px' }}>Read</span>
+            <span style={{ float: 'right' }}>Write</span> */}
+            <br />
+            <label>
+                <input
+                type="checkbox"
+                checked={selectAllRead} // Add state for select all read
+                onChange={handleSelectAllRead}
+                />
+                Read
+            </label>
+            <br />
+            <label>
+                <input
+                type="checkbox"
+                checked={selectAllWrite} // Add state for select all write
+                onChange={handleSelectAllWrite}
+                />
+                Write
+            </label>
+            </StyledPermissionColumn>
+        </Table.HeadCell>
         </Table.Head>
         <Table.Body>
         {selectedDashboard &&
             filteredData.map((row, index) => (
               <Table.Row key={index}>
-                <Table.Cell>{row.role}</Table.Cell>
+                <Table.Cell>{row.name}</Table.Cell>
                 <Table.Cell>
                   <CheckboxContainer>
                     <Switch
                       value="Read"
-                      onClick={() => handleReadCheckboxClick(row.role)}
-                      selected={readChecked[row.role]}
+                      onClick={() => handleReadCheckboxClick(row.name)}
+                      selected={readChecked[row.name]}
                       appearance="checkbox"
                     >
                       
@@ -153,7 +209,7 @@ return (
                     <Switch
                       value="Write"
                       onClick={() => handleWriteCheckboxClick(row.role)}
-                      selected={writeChecked[row.role]}
+                      selected={writeChecked[row.name]}
                       appearance="checkbox"
                     >
                       
