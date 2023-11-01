@@ -66,6 +66,7 @@ const App = ({ name = 'User' }) => {
     const [isDirty, setIsDirty] = useState(false);
     const [initialReadChecked, setInitialReadChecked] = useState({});
     const [initialWriteChecked, setInitialWriteChecked] = useState({});
+    const [permsData, setPermsData] = useState({});
 
 
     const dummyDashboardData = [
@@ -100,10 +101,10 @@ const App = ({ name = 'User' }) => {
    const [data, setData] = useState([]);
 
    useEffect(() => {
-    setCheckboxChanges(true); 
-        if (saveButtonRef.current) {
-            saveButtonRef.current.disabled = !checkboxChanges;
-        }
+    // setCheckboxChanges(true); 
+    //     if (saveButtonRef.current) {
+    //         saveButtonRef.current.disabled = !checkboxChanges;
+    //     }
     }, [checkboxChanges]);
   
     const handleSave = () => {
@@ -127,7 +128,7 @@ const App = ({ name = 'User' }) => {
             <TabLayout.Panel label="Dashboards" panelId="one" style={{ margin: 20 }}>
                 <StyledPrivsTableContainer>
                 <StyledTopContainer>
-                    <DashboardsInputComponent onSearchChange={handleSearchChange} />
+                    <DashboardsInputComponent onSearchChange={handleSearchChange} onPermsData={setPermsData} />
                     <StyledButton
                     label="Cancel"
                     appearance="secondary"
@@ -142,7 +143,7 @@ const App = ({ name = 'User' }) => {
                 
                     {showTable && selectedDashboard ? (
                     <><PrivsTableComponent selectedDashboard={selectedDashboard} onCheckboxChange={(changed) => setCheckboxChanges(changed)}  isDirty={isDirty}
-                    setIsDirty={setIsDirty} initialReadChecked={initialReadChecked}  initialWriteChecked={initialWriteChecked}/>
+                    setIsDirty={setIsDirty} initialReadChecked={initialReadChecked}  initialWriteChecked={initialWriteChecked} permsData={permsData}/>
                      <div style={{ width: '90%' }}>
                      <SaveButtonContainer>
                      <StyledSaveButton

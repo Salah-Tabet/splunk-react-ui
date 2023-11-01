@@ -31,17 +31,43 @@ const StyledRolesColumn = styled.div`
   text-align: left;
 `;
 
-function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, setIsDirty, initialReadChecked, initialWriteChecked}) {
+function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, setIsDirty, initialReadChecked, initialWriteChecked, permsData}) {
     const [checkboxValues, setCheckboxValues] = useState([]); 
     // const [initialReadChecked, setInitialReadChecked] = useState({});
     // const [initialWriteChecked, setInitialWriteChecked] = useState({});
     const [selectAllRead, setSelectAllRead] = useState(false);
     const [selectAllWrite, setSelectAllWrite] = useState(false);
-
-
+    const [readChecked, setReadChecked] = useState(initialReadChecked);
+    const [writeChecked, setWriteChecked] = useState(initialWriteChecked);
+    console.log("===>", permsData)
     const [tableData, setTableData] = useState([
         {
             "name": "admin",
+            "id": "https://0.0.0.0:8089/services/authorization/roles/admin",
+            "updated": "1970-01-01T00:00:00+00:00",
+            "links": {
+                "alternate": "/services/authorization/roles/admin",
+                "list": "/services/authorization/roles/admin",
+                "edit": "/services/authorization/roles/admin",
+                "remove": "/services/authorization/roles/admin",
+            },
+            "author": "system",
+            "acl": {
+                "app":"",
+                "can_list": true,
+                "can_write": true,
+                "modifiable": false,
+                "owner": "system",
+            },
+            "perms": {
+                "read":["*"],
+                "write":["*"],
+                },
+            "removable": false,
+            "sharing": "system",
+        },
+        {
+            "name": "sc_admin",
             "id": "https://0.0.0.0:8089/services/authorization/roles/admin",
             "updated": "1970-01-01T00:00:00+00:00",
             "links": {
@@ -83,79 +109,100 @@ function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, set
     //     setTableData(updatedTableData);
     //   };
     
-      
-    const [readChecked, setReadChecked] = useState(false);
-    const [writeChecked, setWriteChecked] = useState(false);
-
     useEffect(() => {
-        // Initialize readChecked and writeChecked based on filteredData
-        const initialReadChecked = {};
-        const initialWriteChecked = {};
-       
-       // Loop through the data from DashboardsInputComponent
-        filteredData.forEach((row) => {
-            const roleName = row.name; // Assuming the role name is in the "name" property
-            initialReadChecked[roleName] = row.perms.read.includes(roleName);
-            initialWriteChecked[roleName] = row.perms.write.includes(roleName);
-        });
-
-        setReadChecked(initialReadChecked);
-        setWriteChecked(initialWriteChecked);
-
-        // Check if there are any initial changes
-        const isDirty = Object.keys(readChecked).some((role) => readChecked[role] !== initialReadChecked[role])
-            || Object.keys(writeChecked).some((role) => writeChecked[role] !== initialWriteChecked[role]);
-
-        setIsDirty(isDirty);
-      }, [selectedDashboard]);
+        if (permsData && Object.keys(permsData).length > 0) {
+            const initialReadChecked = {};
+            const initialWriteChecked = {};
+        
+            for (const dashboard in permsData) {
+                
+              if (permsData.hasOwnProperty(dashboard)) {
+                for (const role of permsData[dashboard].read) {
+                    console.log("()()()(=>",role)
+                  if (!initialReadChecked[role]) {
+                    initialReadChecked[role] = true;
+                  }
+                }
+        
+                for (const role of permsData[dashboard].write) {
+                  if (!initialWriteChecked[role]) {
+                    initialWriteChecked[role] = true;
+                  }
+                }
+              }
+            }
+        
+            console.log(initialWriteChecked,"===initial==", initialWriteChecked);
+            setReadChecked(initialReadChecked);
+            setWriteChecked(initialWriteChecked);
+        }
+      }, [permsData]);
+      
     
       const handleSelectAllRead = () => {
-        const updatedReadChecked = {};
-        Object.keys(readChecked).forEach((role) => {
-          updatedReadChecked[role] = !selectAllRead;
-        });
-      
-        setReadChecked(updatedReadChecked);
-        setSelectAllRead(!selectAllRead);
-        setIsDirty(true); // You may need to set this state as changes occur
+        if (selectedDashboard) {
+            const updatedReadChecked = { ...readChecked };
+        
+            filteredData.forEach((row) => {
+              updatedReadChecked[row.name] = !selectAllRead;
+            });
+        
+            setReadChecked(updatedReadChecked);
+            setSelectAllRead(!selectAllRead);
+            setIsDirty(true);
+          }
       };
       
       const handleSelectAllWrite = () => {
-        const updatedWriteChecked = {};
-        Object.keys(writeChecked).forEach((role) => {
-          updatedWriteChecked[role] = !selectAllWrite;
-        });
-      
-        setWriteChecked(updatedWriteChecked);
-        setSelectAllWrite(!selectAllWrite);
-        setIsDirty(true); // You may need to set this state as changes occur
+        if (selectedDashboard) {
+            const updatedWriteChecked = { ...writeChecked };
+        
+            filteredData.forEach((row) => {
+              updatedWriteChecked[row.name] = !selectAllWrite;
+            });
+        
+            setWriteChecked(updatedWriteChecked);
+            setSelectAllWrite(!selectAllWrite);
+            setIsDirty(true);
+          }
+          
       };
 
       
     const handleReadCheckboxClick = (role) => {
-        setReadChecked({
-          ...readChecked,
-          [role]: !readChecked[role],
-        });
-
-        const isDirty =
-        Object.keys(readChecked).some((r) => readChecked[r] !== initialReadChecked[r]) ||
-        Object.keys(writeChecked).some((r) => writeChecked[r] !== initialWriteChecked[r]);
-    
-        setIsDirty(isDirty);
+        if (selectedDashboard) {
+            const updatedReadChecked = { ...readChecked };
+            updatedReadChecked[role] = !readChecked[role];
+            setReadChecked(updatedReadChecked);
+        
+            const selectedDashboardPerms = permsData[selectedDashboard];
+        
+            if (selectedDashboardPerms) {
+              const isDirty =
+                !Object.keys(updatedReadChecked).some((r) => updatedReadChecked[r]) ||
+                (selectedDashboardPerms.write &&
+                  selectedDashboardPerms.write.some((r) => writeChecked[r]));
+              setIsDirty(isDirty);
+            }
+          }
       };
     
       const handleWriteCheckboxClick = (role) => {
-        setWriteChecked({
-          ...writeChecked,
-          [role]: !writeChecked[role],
-        });
-
-        const isDirty =
-        Object.keys(readChecked).some((r) => readChecked[r] !== initialReadChecked[r]) ||
-        Object.keys(writeChecked).some((r) => writeChecked[r] !== initialWriteChecked[r]);
-
-        setIsDirty(isDirty);
+        if (selectedDashboard) {
+            const updatedWriteChecked = { ...writeChecked };
+            updatedWriteChecked[role] = !writeChecked[role];
+            setWriteChecked(updatedWriteChecked);
+        
+            const selectedDashboardPerms = permsData[selectedDashboard];
+        
+            if (selectedDashboardPerms) {
+              const isDirty =
+                (selectedDashboardPerms.read &&
+                  selectedDashboardPerms.read.some((r) => readChecked[r])) ||
+                !Object.keys(updatedWriteChecked).some((r) => updatedWriteChecked[r]);
+              setIsDirty(isDirty);
+            }
+          }
       };
 
 return (
@@ -201,15 +248,15 @@ return (
                     <Switch
                       value="Read"
                       onClick={() => handleReadCheckboxClick(row.name)}
-                      selected={readChecked[row.name]}
+                      selected={readChecked[row.name] || false}
                       appearance="checkbox"
                     >
                       
                     </Switch>
                     <Switch
                       value="Write"
-                      onClick={() => handleWriteCheckboxClick(row.role)}
-                      selected={writeChecked[row.name]}
+                      onClick={() => handleWriteCheckboxClick(row.name)}
+                      selected={writeChecked[row.name] || false}
                       appearance="checkbox"
                     >
                       

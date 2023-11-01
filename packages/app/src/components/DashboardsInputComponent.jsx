@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 
 
-function DashboardsInputComponent({ onSearchChange }) {
+function DashboardsInputComponent({ onSearchChange, onPermsData  }) {
 
     const fetchOptions = useRef(new FetchOptions());
     const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +54,7 @@ function DashboardsInputComponent({ onSearchChange }) {
                     "edit": "/servicesNS/nobody/splunk_secure_gateway/data/ui/views/administration",
                 },
         "author": "nobody",
-        "acI": {
+        "acl": {
             "app": "splunk_secure_gateway",
             "can_change_perms": true,
             "can_list": true,
@@ -66,7 +66,7 @@ function DashboardsInputComponent({ onSearchChange }) {
             "owner": "nobody",
             "perms": {
                 "read": ["admin", "sc_admin"],
-                "write": ["admin", "sc_admin" ]
+                "write": ["admin" ]
             },
             "removable": false,
             "sharing": "app",
@@ -76,7 +76,24 @@ function DashboardsInputComponent({ onSearchChange }) {
     }
     ]
     };
+    console.log("search value: " + searchValue);
+    // Initialize permissions data
+    const permsData = {};
+
+    // Find the selected dashboard entry
+    const selectedDashboard = searchOptions.entry.find((dashboard) => dashboard.name === searchValue);
+    // If a dashboard with matching name is found, set the permissions data
+    if (selectedDashboard) {
+        console.log("selectedDashboard: " + JSON.stringify(selectedDashboard.acl.perms.read));
+        permsData[selectedDashboard.name] = {
+            read: selectedDashboard.acl?.perms?.read,
+            write: selectedDashboard.acl?.perms?.write,
+        };
+        onPermsData(permsData);
+    }
+    
     setOptions(searchOptions.entry);
+    
 };
 
 
