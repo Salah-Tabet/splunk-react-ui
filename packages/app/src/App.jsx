@@ -64,8 +64,8 @@ const App = ({ name = 'User' }) => {
     const [checkboxChanges, setCheckboxChanges] = useState(false);
     const saveButtonRef = useRef();
     const [isDirty, setIsDirty] = useState(false);
-    const [initialReadChecked, setInitialReadChecked] = useState({});
-    const [initialWriteChecked, setInitialWriteChecked] = useState({});
+    // const [initialReadChecked, setInitialReadChecked] = useState({});
+    // const [initialWriteChecked, setInitialWriteChecked] = useState({});
     const [permsData, setPermsData] = useState({});
 
 
@@ -118,7 +118,34 @@ const App = ({ name = 'User' }) => {
             console.log('No changes to save');
         }
     };
-
+    const calculatingInitalReadWriteChecked = (permsData) => {
+        if (permsData && Object.keys(permsData).length > 0) {
+            const initialReadChecked = {};
+            const initialWriteChecked = {};
+        
+            for (const dashboard in permsData) {
+                
+              if (permsData.hasOwnProperty(dashboard)) {
+                for (const role of permsData[dashboard].read) {
+                  if (!initialReadChecked[role]) {
+                    initialReadChecked[role] = true;
+                  }
+                }
+        
+                for (const role of permsData[dashboard].write) {
+                  if (!initialWriteChecked[role]) {
+                    initialWriteChecked[role] = true;
+                  }
+                }
+              }
+            }
+        
+            console.log(initialReadChecked,"===initial==", initialWriteChecked);
+            // setReadChecked(initialReadChecked);
+            // setWriteChecked(initialWriteChecked);
+            return {"initialReadChecked":initialReadChecked, "initialWriteChecked":initialWriteChecked}
+        }
+    };
 
   return (
     <>
@@ -143,7 +170,7 @@ const App = ({ name = 'User' }) => {
                 
                     {showTable && selectedDashboard ? (
                     <><PrivsTableComponent selectedDashboard={selectedDashboard} onCheckboxChange={(changed) => setCheckboxChanges(changed)}  isDirty={isDirty}
-                    setIsDirty={setIsDirty} initialReadChecked={initialReadChecked}  initialWriteChecked={initialWriteChecked} permsData={permsData}/>
+                    setIsDirty={setIsDirty} initialReadChecked={calculatingInitalReadWriteChecked(permsData).initialReadChecked}  initialWriteChecked={calculatingInitalReadWriteChecked(permsData).initialWriteChecked} permsData={permsData}/>
                      <div style={{ width: '90%' }}>
                      <SaveButtonContainer>
                      <StyledSaveButton

@@ -66,7 +66,7 @@ function DashboardsInputComponent({ onSearchChange, onPermsData  }) {
             "owner": "nobody",
             "perms": {
                 "read": ["admin", "sc_admin"],
-                "write": ["admin" ]
+                "write": ["admin", "sc_admin" ]
             },
             "removable": false,
             "sharing": "app",
@@ -76,7 +76,7 @@ function DashboardsInputComponent({ onSearchChange, onPermsData  }) {
     }
     ]
     };
-    console.log("search value: " + searchValue);
+    //console.log("search value: " + searchValue);
     // Initialize permissions data
     const permsData = {};
 
@@ -84,7 +84,7 @@ function DashboardsInputComponent({ onSearchChange, onPermsData  }) {
     const selectedDashboard = searchOptions.entry.find((dashboard) => dashboard.name === searchValue);
     // If a dashboard with matching name is found, set the permissions data
     if (selectedDashboard) {
-        console.log("selectedDashboard: " + JSON.stringify(selectedDashboard.acl.perms.read));
+       // console.log("selectedDashboard: " + JSON.stringify(selectedDashboard.acl.perms.read));
         permsData[selectedDashboard.name] = {
             read: selectedDashboard.acl?.perms?.read,
             write: selectedDashboard.acl?.perms?.write,

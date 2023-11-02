@@ -7,10 +7,14 @@ import styled from 'styled-components';
 import ControlGroup from "@splunk/react-ui/ControlGroup";
 import Switch from "@splunk/react-ui/Switch";
 
+
   const CheckboxContainer = styled.div`
     display: flex;
     gap: 30px;
-    //margin-right: 10px; // Remove the extra space to the right of checkboxes
+    & .disabled-checkbox {
+        opacity: 0.5; // Example: Reducing opacity to make it appear disabled
+        pointer-events: none; // Prevent interaction
+      }
   `;
   
   const StyledTableContainer = styled.div`
@@ -31,15 +35,18 @@ const StyledRolesColumn = styled.div`
   text-align: left;
 `;
 
+
+
 function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, setIsDirty, initialReadChecked, initialWriteChecked, permsData}) {
+
     const [checkboxValues, setCheckboxValues] = useState([]); 
     // const [initialReadChecked, setInitialReadChecked] = useState({});
     // const [initialWriteChecked, setInitialWriteChecked] = useState({});
     const [selectAllRead, setSelectAllRead] = useState(false);
     const [selectAllWrite, setSelectAllWrite] = useState(false);
-    const [readChecked, setReadChecked] = useState(initialReadChecked);
-    const [writeChecked, setWriteChecked] = useState(initialWriteChecked);
-    console.log("===>", permsData)
+    const [readChecked, setReadChecked] = useState({...initialReadChecked});
+    const [writeChecked, setWriteChecked] = useState({...initialWriteChecked});
+    console.log("=read Check top==>", readChecked["admin"])
     const [tableData, setTableData] = useState([
         {
             "name": "admin",
@@ -92,7 +99,18 @@ function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, set
             "sharing": "system",
         }
         ]);
-      const filteredData = tableData; //.filter((row) => row.name === selectedDashboard);
+      const filteredData = tableData;
+      
+      filteredData.forEach((role)=>{
+        if(initialReadChecked === undefined){
+            initialReadChecked = false;
+        }
+        if(initialWriteChecked === undefined){
+            initialWriteChecked = false;
+        }
+      })
+      
+    //.filter((row) => row.name === selectedDashboard);
     //   const handleCheckboxChange = (roleId, permissionType) => {
     //     const updatedTableData = tableData.map((row) => {
     //       if (row.id === roleId) {
@@ -109,61 +127,21 @@ function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, set
     //     setTableData(updatedTableData);
     //   };
     
-    useEffect(() => {
-        if (permsData && Object.keys(permsData).length > 0) {
-            const initialReadChecked = {};
-            const initialWriteChecked = {};
-        
-            for (const dashboard in permsData) {
-                
-              if (permsData.hasOwnProperty(dashboard)) {
-                for (const role of permsData[dashboard].read) {
-                    console.log("()()()(=>",role)
-                  if (!initialReadChecked[role]) {
-                    initialReadChecked[role] = true;
-                  }
-                }
-        
-                for (const role of permsData[dashboard].write) {
-                  if (!initialWriteChecked[role]) {
-                    initialWriteChecked[role] = true;
-                  }
-                }
-              }
-            }
-        
-            console.log(initialWriteChecked,"===initial==", initialWriteChecked);
-            setReadChecked(initialReadChecked);
-            setWriteChecked(initialWriteChecked);
-        }
-      }, [permsData]);
+   
       
     
       const handleSelectAllRead = () => {
         if (selectedDashboard) {
-            const updatedReadChecked = { ...readChecked };
-        
-            filteredData.forEach((row) => {
-              updatedReadChecked[row.name] = !selectAllRead;
-            });
-        
-            setReadChecked(updatedReadChecked);
-            setSelectAllRead(!selectAllRead);
-            setIsDirty(true);
+            setSelectAllRead(!selectAllRead); // Toggle the "Read All" state
+            setIsDirty(!selectAllRead); // Toggle isDirty
+            
           }
       };
       
       const handleSelectAllWrite = () => {
         if (selectedDashboard) {
-            const updatedWriteChecked = { ...writeChecked };
-        
-            filteredData.forEach((row) => {
-              updatedWriteChecked[row.name] = !selectAllWrite;
-            });
-        
-            setWriteChecked(updatedWriteChecked);
-            setSelectAllWrite(!selectAllWrite);
-            setIsDirty(true);
+            setSelectAllWrite(!selectAllWrite); // Toggle the "Write All" state
+            setIsDirty(!selectAllWrite); // Toggle isDirty
           }
           
       };
@@ -171,39 +149,41 @@ function PrivsTableComponent({ selectedDashboard, onCheckboxChange, isDirty, set
       
     const handleReadCheckboxClick = (role) => {
         if (selectedDashboard) {
-            const updatedReadChecked = { ...readChecked };
-            updatedReadChecked[role] = !readChecked[role];
+            const updatedReadChecked = {
+              ...readChecked,
+              [role]: !readChecked[role],
+            };
+            console.log("updatedReadChecked: " + updatedReadChecked)
             setReadChecked(updatedReadChecked);
         
-            const selectedDashboardPerms = permsData[selectedDashboard];
+            const isDirty = Object.keys(updatedReadChecked).some((r) => {
+              const roleExistsInInitial = initialReadChecked[r] !== undefined;
+              return roleExistsInInitial && updatedReadChecked[r] !== initialReadChecked[r];
+            });
         
-            if (selectedDashboardPerms) {
-              const isDirty =
-                !Object.keys(updatedReadChecked).some((r) => updatedReadChecked[r]) ||
-                (selectedDashboardPerms.write &&
-                  selectedDashboardPerms.write.some((r) => writeChecked[r]));
-              setIsDirty(isDirty);
-            }
+            setIsDirty(isDirty);
           }
       };
     
       const handleWriteCheckboxClick = (role) => {
         if (selectedDashboard) {
-            const updatedWriteChecked = { ...writeChecked };
-            updatedWriteChecked[role] = !writeChecked[role];
+            const updatedWriteChecked = {
+              ...writeChecked,
+              [role]: !writeChecked[role],
+            };
             setWriteChecked(updatedWriteChecked);
         
-            const selectedDashboardPerms = permsData[selectedDashboard];
+            const isDirty = Object.keys(updatedWriteChecked).some((r) => {
+              const roleExistsInInitial = initialWriteChecked[r] !== undefined;
+              return roleExistsInInitial && updatedWriteChecked[r] !== initialWriteChecked[r];
+            });
         
-            if (selectedDashboardPerms) {
-              const isDirty =
-                (selectedDashboardPerms.read &&
-                  selectedDashboardPerms.read.some((r) => readChecked[r])) ||
-                !Object.keys(updatedWriteChecked).some((r) => updatedWriteChecked[r]);
-              setIsDirty(isDirty);
-            }
+            setIsDirty(isDirty);
           }
       };
+
+
+      const checkboxDisabledClass = "disabled-checkbox";
 
 return (
     <>
@@ -248,16 +228,18 @@ return (
                     <Switch
                       value="Read"
                       onClick={() => handleReadCheckboxClick(row.name)}
-                      selected={readChecked[row.name] || false}
-                      appearance="checkbox"
+                      selected={readChecked[row.name]}
+                      appearance={"checkbox"}
+                      disabled={selectAllRead}
                     >
                       
                     </Switch>
                     <Switch
                       value="Write"
                       onClick={() => handleWriteCheckboxClick(row.name)}
-                      selected={writeChecked[row.name] || false}
-                      appearance="checkbox"
+                      selected={writeChecked[row.name]}
+                      appearance={"checkbox"}
+                     disabled={selectAllWrite}
                     >
                       
                     </Switch>
